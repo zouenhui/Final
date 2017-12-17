@@ -170,8 +170,9 @@ def correct_colors(im1, im2, landmarks1):
     return (im2.astype(numpy.float64) * im1_blur.astype(numpy.float64) /
             im2_blur.astype(numpy.float64))
 
-im1, landmarks1 = read_im_and_landmarks("putin.jpg")
+im1, landmarks1 = read_im_and_landmarks("MBL.jpg")
 im2, landmarks2 = read_im_and_landmarks("trump.jpg")
+
 
 # draw landmarks
 #for i in landmarks2:
@@ -187,6 +188,7 @@ M = transformation_from_points(landmarks1[ALIGN_POINTS],
                                landmarks2[ALIGN_POINTS])
 
 mask = get_face_mask(im2, landmarks2)
+
 warped_mask = warp_im(mask, M, im1.shape)
 combined_mask = numpy.max([get_face_mask(im1, landmarks1), warped_mask],
                           axis=0)

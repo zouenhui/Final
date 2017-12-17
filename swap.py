@@ -15,8 +15,8 @@ PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
 #(major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 global frameV1
 global v2Frame
-video1=cv2.VideoCapture('MarquesBrownlee.mp4')
-video2=cv2.VideoCapture('TheMartian.mp4')
+video1=cv2.VideoCapture('TheMartian.mp4')
+video2=cv2.VideoCapture('MarquesBrownlee.mp4')
 tf,frameV1=video1.read()
 tf,frameV2=video2.read()
 [h1,w1,c1]=frameV1.shape
@@ -34,7 +34,7 @@ frameV2=cv2.resize(frameV2,(width,height))
 fps1=video1.get(cv2.CAP_PROP_FPS)
 fps2=video1.get(cv2.CAP_PROP_FPS)
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-vOut1=cv2.VideoWriter('output1.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps1,(width,height))
+vOut1=cv2.VideoWriter('output4.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps1,(width,height))
 vOut2=cv2.VideoWriter('output2.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps2,(width,height))
 
 #feature detection and extraction
@@ -83,7 +83,6 @@ while True:
                     tri_1.append(pointsF1[d_tri[i][j]])
                     tri_2.append(points2[d_tri[i][j]])
                 warpTriangle(frameV1,warped_img1,tri_1,tri_2)
-#            cv2.imshow("Fig1",warped_img1)
             hull8U=[]
             for i in xrange(0,len(hull_2)):
                 hull8U.append((hull_2[i][0],hull_2[i][1]))
@@ -93,7 +92,6 @@ while True:
             center=((r[0]+int(r[2]/2),r[1]+int(r[3]/2)))
             output=cv2.seamlessClone(np.uint8(warped_img1),v2Frame,mask,center,cv2.NORMAL_CLONE)
             vFrame2=output
-#        cv2.imshow("Face swapped" ,output)
         vOut1.write(output.astype('uint8'))
         if cv2.waitKey(1) & 0xFF==ord('q'):
             break
