@@ -7,7 +7,7 @@ Created on Fri Dec 08 10:52:31 2017
 import cv2
 import dlib
 import numpy
-import sys
+#import sys
 
 PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
 SCALE_FACTOR = 1
