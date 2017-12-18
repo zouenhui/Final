@@ -15,10 +15,11 @@ PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
 #(major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 global frameV1
 global v2Frame
-video1=cv2.VideoCapture('TheMartian.mp4')
-video2=cv2.VideoCapture('MarquesBrownlee.mp4')
+video1=cv2.VideoCapture('MarquesBrownlee.mp4')
+video2=cv2.VideoCapture('TheMartian.mp4')
 tf,frameV1=video1.read()
 tf,frameV2=video2.read()
+#frameV1=cv2.imread('Adnan.jpg')
 [h1,w1,c1]=frameV1.shape
 [h2,w2,c2]=frameV2.shape
 if h1>h2:
@@ -34,7 +35,7 @@ frameV2=cv2.resize(frameV2,(width,height))
 fps1=video1.get(cv2.CAP_PROP_FPS)
 fps2=video1.get(cv2.CAP_PROP_FPS)
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-vOut1=cv2.VideoWriter('output4.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps1,(width,height))
+vOut1=cv2.VideoWriter('output5.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps1,(width,height))
 vOut2=cv2.VideoWriter('output2.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps2,(width,height))
 
 #feature detection and extraction
@@ -93,6 +94,7 @@ while True:
             output=cv2.seamlessClone(np.uint8(warped_img1),v2Frame,mask,center,cv2.NORMAL_CLONE)
             vFrame2=output
         vOut1.write(output.astype('uint8'))
+        cv2.imshow("current frame",output)
         if cv2.waitKey(1) & 0xFF==ord('q'):
             break
     else:
