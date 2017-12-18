@@ -43,6 +43,7 @@ detectedPts1=DETECTOR(frameV1,1)
 detectedPts2=DETECTOR(frameV2,2)
 pointsF1=[]
 pointsF2=[]
+
 for k,d in enumerate(detectedPts1):
     shape=PREDICTOR(frameV1,d)
     for i in range(68):
