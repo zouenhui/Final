@@ -2,7 +2,7 @@
 """
 Created on Sat Dec 16 16:21:00 2017
 
-@author: zoue
+@author: 
 """
 
 import cv2
@@ -12,14 +12,18 @@ from util import *
 
 
 PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
-#(major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 global frameV1
 global v2Frame
+lk_params = dict( winSize  = (15,15),
+                  maxLevel = 2,
+                  criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 video1=cv2.VideoCapture('MarquesBrownlee.mp4')
-video2=cv2.VideoCapture('TheMartian.mp4')
+video2=cv2.VideoCapture('MrRobot.mp4')
 tf,frameV1=video1.read()
 tf,frameV2=video2.read()
-#frameV1=cv2.imread('Adnan.jpg')
+oldFrameV1Gray=cv2.cvtColor(frameV1, cv2.COLOR_BGR2GRAY)
+oldFrameV2Gray=cv2.cvtColor(frameV2, cv2.COLOR_BGR2GRAY)
+frameV1=cv2.imread('Adnan.jpg')
 [h1,w1,c1]=frameV1.shape
 [h2,w2,c2]=frameV2.shape
 if h1>h2:
@@ -45,14 +49,23 @@ detectedPts1=DETECTOR(frameV1,1)
 detectedPts2=DETECTOR(frameV2,2)
 pointsF1=[]
 pointsF2=[]
+frameNum=0
+for k,d in enumerate(detectedPts2):
+    shape=PREDICTOR(frameV2,d)
+    for i in range(68):
+        pointsF2.append((shape.part(i).x,shape.part(i).y))
 for k,d in enumerate(detectedPts1):
     shape=PREDICTOR(frameV1,d)
     for i in range(68):
         pointsF1.append((shape.part(i).x,shape.part(i).y))
+old2FeaturePoints=np.array(pointsF2)
+old2FeaturePoints=np.float32(old2FeaturePoints.reshape(-1,1,2))
 while True:
     tf2,v2Frame=video2.read()
+    frameNum=frameNum+1
+    print frameNum
     if tf2==True:
-        print tf2
+        v2FrameGray=cv2.cvtColor(v2Frame, cv2.COLOR_BGR2GRAY)
         v2Frame=cv2.resize(v2Frame,(width,height))
         warped_img1=np.copy(v2Frame)
         detections=DETECTOR(v2Frame,2)
@@ -62,10 +75,18 @@ while True:
             for i in range(68):
                 points2.append((shape.part(i).x,shape.part(i).y))
     #        convex hull
+            p1, st, err = cv2.calcOpticalFlowPyrLK(oldFrameV2Gray, v2FrameGray,old2FeaturePoints , None, **lk_params)
+            estimated=p1.reshape(-1,2)
+            detected=np.array(points2)
+            if len(detected)==0:
+                total=estimated
+            else:
+                total=estimated*0.5+detected*0.5
             hull_1=[]
             hull_2=[]
-            hull_ind=cv2.convexHull(np.array(points2), returnPoints = False)
-            
+            hull_ind=cv2.convexHull(total.astype(np.int), returnPoints = False)
+            old2FeaturePoints=np.float32(total.reshape(-1,1,2))
+            oldFrameV2Gray=v2FrameGray
             for i in xrange(0,len(hull_ind)):
                 
                 hull_1.append(pointsF1[hull_ind[i,0]])
@@ -94,7 +115,9 @@ while True:
             output=cv2.seamlessClone(np.uint8(warped_img1),v2Frame,mask,center,cv2.NORMAL_CLONE)
             vFrame2=output
         vOut1.write(output.astype('uint8'))
-        cv2.imshow("current frame",output)
+#        cv2.imshow("current frame",output)
+#        cv2.waitKey(0)
+#        cv2.destroyWindow("current frame")
         if cv2.waitKey(1) & 0xFF==ord('q'):
             break
     else:
