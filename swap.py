@@ -14,16 +14,18 @@ from util import *
 PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
 global frameV1
 global v2Frame
+vidSourceName='MarquesBrownlee.mp4'
+vidTargetName='TheMartian.mp4'
 lk_params = dict( winSize  = (15,15),
                   maxLevel = 2,
                   criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-video1=cv2.VideoCapture('MarquesBrownlee.mp4')
-video2=cv2.VideoCapture('MrRobot.mp4')
+video1=cv2.VideoCapture(vidSourceName)
+video2=cv2.VideoCapture(vidTargetName)
 tf,frameV1=video1.read()
 tf,frameV2=video2.read()
 oldFrameV1Gray=cv2.cvtColor(frameV1, cv2.COLOR_BGR2GRAY)
 oldFrameV2Gray=cv2.cvtColor(frameV2, cv2.COLOR_BGR2GRAY)
-frameV1=cv2.imread('Adnan.jpg')
+#frameV1=cv2.imread('Adnan.jpg')
 [h1,w1,c1]=frameV1.shape
 [h2,w2,c2]=frameV2.shape
 if h1>h2:
@@ -39,7 +41,7 @@ frameV2=cv2.resize(frameV2,(width,height))
 fps1=video1.get(cv2.CAP_PROP_FPS)
 fps2=video1.get(cv2.CAP_PROP_FPS)
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-vOut1=cv2.VideoWriter('output5.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps1,(width,height))
+vOut1=cv2.VideoWriter('output1.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps1,(width,height))
 vOut2=cv2.VideoWriter('output2.mp4',cv2.VideoWriter_fourcc(*'MP4V'),fps2,(width,height))
 
 #feature detection and extraction
@@ -62,12 +64,19 @@ old2FeaturePoints=np.array(pointsF2)
 old2FeaturePoints=np.float32(old2FeaturePoints.reshape(-1,1,2))
 while True:
     tf2,v2Frame=video2.read()
+#    tf1,frameV1=video1.read()
     frameNum=frameNum+1
     print frameNum
     if tf2==True:
         v2FrameGray=cv2.cvtColor(v2Frame, cv2.COLOR_BGR2GRAY)
         v2Frame=cv2.resize(v2Frame,(width,height))
         warped_img1=np.copy(v2Frame)
+#        detections=DETECTOR(frameV1,1)
+#        for k,d in enumerate(detections):
+#            shape=PREDICTOR(v2Frame,d)
+#            pointsF1=[]
+#            for i in range(68):
+#                pointsF1.append((shape.part(i).x,shape.part(i).y))
         detections=DETECTOR(v2Frame,2)
         for k,d in enumerate(detections):
             shape=PREDICTOR(v2Frame,d)
@@ -76,10 +85,16 @@ while True:
                 points2.append((shape.part(i).x,shape.part(i).y))
     #        convex hull
             p1, st, err = cv2.calcOpticalFlowPyrLK(oldFrameV2Gray, v2FrameGray,old2FeaturePoints , None, **lk_params)
-            estimated=p1.reshape(-1,2)
+            estimated=[]
+            if p1 is None:
+                pass
+            else:
+                estimated=p1.reshape(-1,2)
             detected=np.array(points2)
             if len(detected)==0:
                 total=estimated
+            elif len(estimated)==0:
+                total=detected
             else:
                 total=estimated*0.5+detected*0.5
             hull_1=[]
@@ -115,7 +130,7 @@ while True:
             output=cv2.seamlessClone(np.uint8(warped_img1),v2Frame,mask,center,cv2.NORMAL_CLONE)
             vFrame2=output
         vOut1.write(output.astype('uint8'))
-#        cv2.imshow("current frame",output)
+        cv2.imshow("current frame",output)
 #        cv2.waitKey(0)
 #        cv2.destroyWindow("current frame")
         if cv2.waitKey(1) & 0xFF==ord('q'):
@@ -124,6 +139,4 @@ while True:
         break
 vOut1.release()
 video2.release()
-cv2.imshow("Image0", frameV1)
-cv2.waitKey(0)
-cv2.destroyWindow("Image0")
+

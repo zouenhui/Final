@@ -1,0 +1,7 @@
+-Install dlib library (conda install -c menpo dlib). If not using Anaconda, acquire necessary dependencies from the link:https://www.pyimagesearch.com/2017/03/27/how-to-install-dlib/
+-Make sure source and target videos have similar width to height ratio for best result. (Resolution of two videos don't have to be the same as the script will perform resizing)
+-Make sure target and source videos are in the same folder as the script
+-Change source video name and target video name (Lines 17 & 18)
+-Run the code, and the output video will be in the same folder named 'output1.mp4'
+-Rename 'output1.mp4' to something else (it will get overwritten when the code runs next time)
+-Swap target and source video name to perform face swap the other way
